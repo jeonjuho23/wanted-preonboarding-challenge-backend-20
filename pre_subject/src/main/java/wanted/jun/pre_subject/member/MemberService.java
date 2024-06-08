@@ -1,5 +1,9 @@
 package wanted.jun.pre_subject.member;
 
-public interface MemberService {
-    public void signUp(SignUpReqDTO request) throws Exception;
+import javax.security.auth.login.FailedLoginException;
+
+interface MemberService {
+    void signUp(SignUpReqDTO request) throws Exception;
+
+    LoginResDTO login(LoginReqDTO request) throws FailedLoginException;
 }

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.security.auth.login.FailedLoginException;
+
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
@@ -24,6 +26,20 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
-        return ResponseEntity.ok().body(new ResponseDTO<Object>("회원가입이 완료되었습니다.", null));
+        return ResponseEntity.ok().body(new ResponseDTO<>("회원가입이 완료되었습니다.", null));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDTO<?>> login(@RequestBody LoginReqDTO request) {
+
+        LoginResDTO response;
+        try {
+            response = memberService.login(request);
+        } catch (FailedLoginException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseDTO<>(e.getMessage(), null));
+        }
+
+        return ResponseEntity.ok().body(new ResponseDTO<>("로그인에 성공했습니다.", response));
     }
 }

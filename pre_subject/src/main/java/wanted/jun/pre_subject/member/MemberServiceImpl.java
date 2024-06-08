@@ -2,9 +2,12 @@ package wanted.jun.pre_subject.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
 import java.util.Optional;
 
 @Service
@@ -27,5 +30,15 @@ public class MemberServiceImpl implements MemberService {
     private boolean isDuplicateMemberId(String id) {
         Optional<Member> optionalMember = memberRepository.findByUserId(id);
         return optionalMember.isPresent();
+    }
+
+    @Override
+    public LoginResDTO login(LoginReqDTO request) throws FailedLoginException {
+        Optional<Member> optionalMember
+                = memberRepository.findByUserIdAndUserPassword(request.id(), request.password());
+
+        Member member = optionalMember.orElseThrow(() -> new FailedLoginException("로그인에 실패했습니다."));
+
+        return new LoginResDTO(member.getUserId(), member.getUserName(), member.getId());
     }
 }

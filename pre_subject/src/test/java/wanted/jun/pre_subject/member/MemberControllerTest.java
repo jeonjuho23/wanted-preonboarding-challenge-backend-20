@@ -1,5 +1,6 @@
 package wanted.jun.pre_subject.member;
 
+import org.apache.coyote.Response;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +34,6 @@ public class MemberControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-
     @Test
     public void signUpDuplicateUserIdException() throws Exception {
         //given
@@ -50,6 +50,49 @@ public class MemberControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+
+    @Test
+    public void login() throws Exception {
+        //given
+        String id = "id";
+        String password = "password";
+        String name = "name";
+        SignUpReqDTO signUpReqDTO = new SignUpReqDTO(id, password, name);
+        memberController.signUp(signUpReqDTO);
+
+        LoginReqDTO request = new LoginReqDTO(id, password);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response =  memberController.login(request);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        LoginResDTO data = (LoginResDTO) Objects.requireNonNull(response.getBody()).data();
+        assertThat(data.id()).isEqualTo(id);
+        assertThat(data.name()).isEqualTo(name);
+    }
+
+
+    @Test
+    public void loginFail() throws Exception {
+        //given
+        String id = "id";
+        String password = "password";
+        String name = "name";
+        SignUpReqDTO signUpReqDTO = new SignUpReqDTO(id, password, name);
+        memberController.signUp(signUpReqDTO);
+
+        String wrongPassword = "wrong password";
+        LoginReqDTO request = new LoginReqDTO(id, wrongPassword);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = memberController.login(request);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Object data = Objects.requireNonNull(response.getBody()).data();
+        assertThat(data).isEqualTo(null);
+    }
 
 
 }
