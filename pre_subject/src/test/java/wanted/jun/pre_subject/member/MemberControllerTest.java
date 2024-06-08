@@ -50,7 +50,6 @@ public class MemberControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-
     @Test
     public void login() throws Exception {
         //given
@@ -71,7 +70,6 @@ public class MemberControllerTest {
         assertThat(data.id()).isEqualTo(id);
         assertThat(data.name()).isEqualTo(name);
     }
-
 
     @Test
     public void loginFail() throws Exception {

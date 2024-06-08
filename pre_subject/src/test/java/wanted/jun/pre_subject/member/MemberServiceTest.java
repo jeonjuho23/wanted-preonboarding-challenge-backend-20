@@ -51,7 +51,6 @@ public class MemberServiceTest {
         Assert.hasText(message, "예외에대한 메세지가 존재해야합니다.");
     }
 
-
     @Test
     public void login() throws Exception {
         //given
@@ -71,7 +70,6 @@ public class MemberServiceTest {
         assertThat(response.id()).isEqualTo(id);
         assertThat(response.name()).isEqualTo(name);
     }
-
 
     @Test
     public void loginFail() throws Exception {
