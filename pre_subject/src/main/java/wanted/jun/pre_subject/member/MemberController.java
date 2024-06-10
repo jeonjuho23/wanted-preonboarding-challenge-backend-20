@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.security.auth.login.FailedLoginException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -23,10 +24,10 @@ public class MemberController {
         try {
             memberService.signUp(request);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage(), Optional.empty()));
         }
 
-        return ResponseEntity.ok().body(new ResponseDTO<>("회원가입이 완료되었습니다.", null));
+        return ResponseEntity.ok().body(new ResponseDTO<>("회원가입이 완료되었습니다.", Optional.empty()));
     }
 
     @PostMapping("/login")
@@ -37,7 +38,7 @@ public class MemberController {
             response = memberService.login(request);
         } catch (FailedLoginException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseDTO<>(e.getMessage(), null));
+                    .body(new ResponseDTO<>(e.getMessage(), Optional.empty()));
         }
 
         return ResponseEntity.ok().body(new ResponseDTO<>("로그인에 성공했습니다.", response));

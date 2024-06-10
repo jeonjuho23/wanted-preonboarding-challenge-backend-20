@@ -199,5 +199,29 @@ public class ProductControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    @Test
+    public void fetchProductDetailForNonMember() throws Exception {
+        //given
+        String productName = "product_name";
+        Integer productPrice = 1000;
+        ProductRegistReqDTO productRegistReqDTO = new ProductRegistReqDTO(member.getId(), productName, productPrice);
+        productController.registProduct(productRegistReqDTO);
+
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.REGIST_TIME.value());
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        ResponseEntity<ResponseDTO<?>> responseDTOResponseEntity = productController.fetchProductList(pageRequest);
+        FetchProductListResDTO data = (FetchProductListResDTO) responseDTOResponseEntity.getBody().data();
+        Long productId = data.content().get(0).productId();
+        Long memberId = member.getId();
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = productController.fetchProductDetailForNonMember(productId);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
 
 }

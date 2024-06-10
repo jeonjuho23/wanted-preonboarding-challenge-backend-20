@@ -136,5 +136,27 @@ public class ProductServiceTest {
     }
 
 
+    @Test
+    public void fetchProductDetailForNonMember() throws Exception {
+        //given
+        String productName = "product_name";
+        Integer productPrice = 1000;
+        ProductRegistReqDTO productRegistReqDTO = new ProductRegistReqDTO(member.getId(), productName, productPrice);
+        productService.registProduct(productRegistReqDTO);
+
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.REGIST_TIME.value());
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        Long productId = productService.fetchProductList(pageRequest).content().get(0).productId();
+
+        FetchProductDetailNonMemberReqDTO request = new FetchProductDetailNonMemberReqDTO(productId);
+        //when
+        FetchProductDetailResDTO response = productService.fetchProductDetailForNonMember(request);
+
+        //then
+        assertThat(response.productId()).isEqualTo(productId);
+    }
+
 
 }

@@ -91,5 +91,15 @@ public class ProductServiceImpl implements ProductService {
                 Optional.of(tradeHistory));
     }
 
+    @Override
+    public FetchProductDetailResDTO fetchProductDetailForNonMember(FetchProductDetailNonMemberReqDTO request) {
+
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new IllegalArgumentException("제품이 존재하지 않습니다."));
+
+        return new FetchProductDetailResDTO(product.getId(), product.getProductName(), product.getProductPrice(),
+                product.getSeller().getUserId(), product.getProductState(), product.getRegistTime(), Optional.empty());
+    }
+
 
 }

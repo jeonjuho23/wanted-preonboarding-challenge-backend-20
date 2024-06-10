@@ -8,4 +8,6 @@ public interface ProductService {
     FetchProductListResDTO fetchProductList(Pageable request) throws Exception;
 
     FetchProductDetailResDTO fetchProductDetailForMember(FetchProductDetailReqDTO request);
+
+    FetchProductDetailResDTO fetchProductDetailForNonMember(FetchProductDetailNonMemberReqDTO request);
 }
