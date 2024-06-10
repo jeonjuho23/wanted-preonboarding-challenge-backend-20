@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.Assert;
 import wanted.jun.pre_subject.member.*;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -18,8 +18,6 @@ public class ProductServiceTest {
 
     @Autowired
     private ProductService productService;
-
-
     @Autowired
     private MemberRepository memberRepository;
     private Member member;
@@ -64,7 +62,6 @@ public class ProductServiceTest {
         Assert.hasText(message, "예외 메세지가 있습니다.");
     }
 
-
     @Test
     public void fetchProductList() throws Exception {
         //given
@@ -84,7 +81,6 @@ public class ProductServiceTest {
         //then
         assertThat(response.content().get(0).productName()).isEqualTo(productName);
     }
-
 
     @Test
     public void fetchProductListSortByRegistTime() throws Exception {
@@ -109,6 +105,36 @@ public class ProductServiceTest {
         //then
         assertThat(response.content().get(0).productName()).isEqualTo(productName);
     }
+
+
+    @Test
+    public void fetchProductDetailForMember() throws Exception {
+        //given
+        String productName = "product_name";
+        Integer productPrice = 1000;
+        ProductRegistReqDTO productRegistReqDTO = new ProductRegistReqDTO(member.getId(), productName, productPrice);
+        productService.registProduct(productRegistReqDTO);
+
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.REGIST_TIME.value());
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        Long productId = productService.fetchProductList(pageRequest).content().get(0).productId();
+        Long memberId = member.getId();
+
+        page = 0;
+        size = 5;
+        sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+        FetchProductDetailReqDTO request = new FetchProductDetailReqDTO(memberId, productId, pageable);
+
+        //when
+        FetchProductDetailResDTO response = productService.fetchProductDetailForMember(request);
+
+        //then
+        assertThat(response.productId()).isEqualTo(productId);
+    }
+
 
 
 }

@@ -37,7 +37,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDTO<FetchProductListResDTO>> fetchProductList
+    public ResponseEntity<ResponseDTO<?>> fetchProductList
             (@PageableDefault(size = 10, page = 0, sort = "registTime") Pageable pageable) {
 
         FetchProductListResDTO response;
@@ -48,5 +48,21 @@ public class ProductController {
         }
 
         return ResponseEntity.ok().body(new ResponseDTO<>("제품 목록을 조회했습니다.", response));
+    }
+
+    @GetMapping("/{productId}/{memberId}")
+    public ResponseEntity<ResponseDTO<?>> fetchProductDetailForMember
+            (@PathVariable("productId") Long productId, @PathVariable("memberId") Long memberId,
+             @PageableDefault(size = 5, page = 0, sort = "product.stateUpdateTime") Pageable pageable) {
+
+        FetchProductDetailReqDTO request = new FetchProductDetailReqDTO(memberId, productId, pageable);
+        FetchProductDetailResDTO response;
+        try {
+            response = productService.fetchProductDetailForMember(request);
+        } catch (IllegalArgumentException ie) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(ie.getMessage(), null));
+        }
+
+        return ResponseEntity.ok().body(new ResponseDTO<>("제품의 상세 정보를 조회했습니다.", response));
     }
 }

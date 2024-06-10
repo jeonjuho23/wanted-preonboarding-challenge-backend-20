@@ -26,8 +26,8 @@ public class Product {
     private String productName;
     @Column(name = "product_price")
     private Integer productPrice;
-    @Column(name = "state")
-    private String state;
+    @Column(name = "product_state")
+    private String productState;
     @Column(name = "regist_time")
     private LocalDateTime registTime;
     @Column(name = "state_update_time")
@@ -38,7 +38,7 @@ public class Product {
         this.seller = seller;
         this.productName = productName;
         this.productPrice = productPrice;
-        this.state = State.SALE.value();
+        this.productState = State.SALE.value();
         this.registTime = LocalDateTime.now();
         this.stateUpdateTime = LocalDateTime.now();
     }

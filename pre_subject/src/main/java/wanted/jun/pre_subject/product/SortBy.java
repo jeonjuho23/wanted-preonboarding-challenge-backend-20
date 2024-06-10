@@ -2,7 +2,8 @@ package wanted.jun.pre_subject.product;
 
 public enum SortBy {
     REGIST_TIME("registTime"),
-    ;
+    STATE_UPDATE_TIME("stateUpdateTime"),
+    PRODUCT_STATE_UPDATE_TIME("product.stateUpdateTime");
 
 
     private final String value;
@@ -11,8 +12,8 @@ public enum SortBy {
         this.value = value;
     }
 
-    public String value(){
+    public String value() {
         return this.value;
     }
 
-}
+    }

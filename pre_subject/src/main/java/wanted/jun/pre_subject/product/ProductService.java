@@ -6,4 +6,6 @@ public interface ProductService {
     void registProduct(ProductRegistReqDTO request);
 
     FetchProductListResDTO fetchProductList(Pageable request) throws Exception;
+
+    FetchProductDetailResDTO fetchProductDetailForMember(FetchProductDetailReqDTO request);
 }
