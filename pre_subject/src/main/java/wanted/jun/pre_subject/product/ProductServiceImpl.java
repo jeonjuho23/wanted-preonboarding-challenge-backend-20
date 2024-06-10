@@ -76,6 +76,10 @@ public class ProductServiceImpl implements ProductService {
 
         tradeHistoryPage = tradeRepository.findAllByBuyerAndProduct(buyer, product, request.pageable());
 
+        if(tradeHistoryPage.isEmpty())
+            return new FetchProductDetailResDTO(product.getId(), product.getProductName(), product.getProductPrice(),
+                product.getSeller().getUserId(), product.getProductState(), product.getRegistTime(), Optional.empty());
+
         List<TradeHistoryDTO> content = tradeHistoryPage.stream()
                 .map(trade -> new TradeHistoryDTO(trade.getId(), trade.getProduct().getProductName(),
                         trade.getProduct().getProductPrice(), trade.getProduct().getProductState(),
