@@ -68,7 +68,7 @@ public class ProductController {
         return ResponseEntity.ok().body(new ResponseDTO<>("제품의 상세 정보를 조회했습니다.", response));
     }
 
-    @GetMapping("/{productId")
+    @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO<?>> fetchProductDetailForNonMember
             (@PathVariable("productId") Long productId) {
 
