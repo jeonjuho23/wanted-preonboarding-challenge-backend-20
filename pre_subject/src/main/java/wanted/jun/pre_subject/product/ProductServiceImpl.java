@@ -3,13 +3,13 @@ package wanted.jun.pre_subject.product;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wanted.jun.pre_subject.member.Member;
 import wanted.jun.pre_subject.member.MemberRepository;
+import wanted.jun.pre_subject.trade.Trade;
+import wanted.jun.pre_subject.trade.TradeRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,14 +26,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void registProduct(ProductRegistReqDTO request) {
+    public Product registProduct(ProductRegistReqDTO request) {
 
         Member seller = memberRepository.findById(request.memberId())
                 .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         Product product = Product.registProduct(seller, request.productName(), request.productPrice());
 
-        productRepository.save(product);
+        return productRepository.save(product);
 
     }
 

@@ -1,9 +1,10 @@
-package wanted.jun.pre_subject.product;
+package wanted.jun.pre_subject.trade;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import wanted.jun.pre_subject.member.Member;
+import wanted.jun.pre_subject.product.Product;
 
 import java.util.Optional;
 

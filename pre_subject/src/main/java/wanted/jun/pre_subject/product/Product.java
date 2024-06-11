@@ -33,7 +33,7 @@ public class Product {
     @Column(name = "state_update_time")
     private LocalDateTime stateUpdateTime;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private Product(Member seller, String productName, Integer productPrice) {
         this.seller = seller;
         this.productName = productName;
@@ -48,5 +48,10 @@ public class Product {
                 .seller(seller)
                 .productName(productName)
                 .productPrice(productPrice).build();
+    }
+
+    public void changeStatusToReserved() {
+        this.productState = State.RESERVED.value();
+        this.stateUpdateTime = LocalDateTime.now();
     }
 }

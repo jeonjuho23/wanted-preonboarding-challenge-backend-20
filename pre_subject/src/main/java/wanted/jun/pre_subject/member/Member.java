@@ -22,7 +22,7 @@ public class Member {
     @Column(name = "name", length = 20)
     String userName;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private Member(String userId, String userPassword, String userName) {
         this.userId = userId;
         this.userPassword = userPassword;

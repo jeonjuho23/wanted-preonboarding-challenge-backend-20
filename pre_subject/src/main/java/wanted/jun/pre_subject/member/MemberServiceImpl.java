@@ -20,11 +20,11 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void signUp(SignUpReqDTO request) throws Exception {
+    public Member signUp(SignUpReqDTO request) throws Exception {
         if (isDuplicateMemberId(request.id())) throw new Exception("입력하신 ID와 중복된 ID가 존재합니다.");
 
         Member newMember = Member.signUp(request.id(), request.password(), request.name());
-        memberRepository.save(newMember);
+        return memberRepository.save(newMember);
     }
 
     private boolean isDuplicateMemberId(String id) {
