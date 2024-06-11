@@ -7,6 +7,7 @@ import wanted.jun.pre_subject.member.Member;
 import wanted.jun.pre_subject.member.MemberRepository;
 import wanted.jun.pre_subject.product.Product;
 import wanted.jun.pre_subject.product.ProductRepository;
+import wanted.jun.pre_subject.product.State;
 
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     @Transactional
-    public Trade reserveProduct(ReservedTradeReqDTO request) {
+    public Trade reserveProduct(ReserveTradeReqDTO request) {
 
         Member buyer = memberRepository.findById(request.buyerId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -34,5 +35,25 @@ public class TradeServiceImpl implements TradeService {
 
         Trade newTrade = Trade.startTrade(buyer, product);
         return tradeRepository.save(newTrade);
+    }
+
+    @Override
+    @Transactional
+    public Trade approveTrade(ApproveTradeReqDTO request) {
+
+        Member seller = memberRepository.findById(request.sellerId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        Trade trade = tradeRepository.findById(request.tradeId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 거래입니다."));
+
+        if (!Objects.equals(trade.getProduct().getSeller().getId(), seller.getId()))
+            throw new IllegalArgumentException("판매자만 판매를 승인할 수 있습니다.");
+
+        if(!Objects.equals(trade.getProduct().getProductState(),State.RESERVED.value())) {
+            throw new IllegalArgumentException("예약 상태의 제품만 판매를 승인할 수 있습니다.");
+        }
+
+        return trade.approveTrade();
     }
 }

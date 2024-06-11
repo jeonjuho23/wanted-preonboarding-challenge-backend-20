@@ -37,5 +37,9 @@ public class Trade {
                 .product(product).build();
     }
 
-    
+
+    public Trade approveTrade() {
+        product.changeStatusToComplete();
+        return this;
+    }
 }

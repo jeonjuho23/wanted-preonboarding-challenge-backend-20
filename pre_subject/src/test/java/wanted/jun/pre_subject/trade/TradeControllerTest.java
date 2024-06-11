@@ -24,6 +24,8 @@ public class TradeControllerTest {
     private ProductRepository productRepository;
     @Autowired
     private TradeController tradeController;
+    @Autowired
+    private TradeService tradeService;
 
     private Member seller, buyer;
     private Product product;
@@ -94,6 +96,89 @@ public class TradeControllerTest {
 
         //when
         ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, buyerId);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Test
+    public void approveTrade() throws Exception {
+        //given
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long tradeId = reservedTrade.getId();
+        Long sellerId = seller.getId();
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, sellerId);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        ApproveTradeResDTO data = (ApproveTradeResDTO) response.getBody().data();
+        assertThat(data.tradeId()).isEqualTo(tradeId);
+    }
+
+
+    @Test
+    public void approveTradeNonMember() throws Exception {
+        //given
+        Long productId = product.getId();
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(productId, null);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void approveProductWithWrongMember() throws Exception {
+        //given
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long tradeId = reservedTrade.getId();
+        Long sellerId = seller.getId() + 10;
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, sellerId);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void approveProductWithWrongTrade() throws Exception {
+        //given
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long tradeId = reservedTrade.getId() + 10;
+        Long sellerId = seller.getId();
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, sellerId);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void approveProductWithBuyer() throws Exception {
+        //given
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long tradeId = reservedTrade.getId();
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, buyerId);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

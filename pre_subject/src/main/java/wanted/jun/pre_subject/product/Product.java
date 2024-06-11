@@ -54,4 +54,9 @@ public class Product {
         this.productState = State.RESERVED.value();
         this.stateUpdateTime = LocalDateTime.now();
     }
+
+    public void changeStatusToComplete() {
+        this.productState = State.COMPLETE.value();
+        this.stateUpdateTime = LocalDateTime.now();
+    }
 }

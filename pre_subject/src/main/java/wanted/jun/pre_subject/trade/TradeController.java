@@ -21,7 +21,7 @@ public class TradeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseDTO<>("제품 예약은 회원만 가능합니다.", null));
 
-        ReservedTradeReqDTO request = new ReservedTradeReqDTO(productId, buyerId);
+        ReserveTradeReqDTO request = new ReserveTradeReqDTO(productId, buyerId);
         try {
             tradeService.reserveProduct(request);
         } catch (IllegalArgumentException ie) {
@@ -29,5 +29,26 @@ public class TradeController {
         }
 
         return ResponseEntity.ok().body(new ResponseDTO<>("제품이 예약되었습니다.", null));
+    }
+
+    @PatchMapping("{tradeId}")
+    public ResponseEntity<ResponseDTO<?>> approveTrade(@PathVariable("tradeId") Long tradeId, @RequestBody Long sellerId) {
+
+        if(sellerId == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseDTO<>("제품 예약은 회원만 가능합니다.", null));
+
+
+        ApproveTradeReqDTO request = new ApproveTradeReqDTO(tradeId, sellerId);
+        ApproveTradeResDTO response;
+
+        try {
+            Trade trade = tradeService.approveTrade(request);
+            response = new ApproveTradeResDTO(trade.getId());
+        } catch (IllegalArgumentException ie) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(ie.getMessage(), null));
+        }
+
+        return ResponseEntity.ok().body(new ResponseDTO<>("제품 판매가 승인되었습니다.", response));
     }
 }
