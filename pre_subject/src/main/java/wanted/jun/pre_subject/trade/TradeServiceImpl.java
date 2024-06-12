@@ -1,6 +1,7 @@
 package wanted.jun.pre_subject.trade;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wanted.jun.pre_subject.member.Member;
@@ -9,7 +10,9 @@ import wanted.jun.pre_subject.product.Product;
 import wanted.jun.pre_subject.product.ProductRepository;
 import wanted.jun.pre_subject.product.State;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,5 +58,29 @@ public class TradeServiceImpl implements TradeService {
         }
 
         return trade.approveTrade();
+    }
+
+    @Override
+    public Optional<FetchPurchasedTradeHistoryResDTO> fetchPurchasedTradeHistory(FetchPurchasedTradeHistoryReqDTO request) {
+
+        if (request.memberId() == null) throw new IllegalArgumentException("회원이어야 거래 내역을 조회할 수 있습니다.");
+
+        Member buyer = memberRepository.findById(request.memberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        Page<Trade> tradePage = tradeRepository.findAllByBuyerAndProduct_ProductState(buyer, State.COMPLETE.value(), request.pageable());
+
+        if (tradePage.isEmpty()) return Optional.empty();
+
+        List<PurchasedTradeHistoryDTO> content = tradePage.getContent().stream()
+                .map(trade -> new PurchasedTradeHistoryDTO(trade.getProduct().getProductName(),
+                        trade.getProduct().getProductPrice(), trade.getProduct().getSeller().getUserId(),
+                        trade.getProduct().getStateUpdateTime(), trade.getId())).toList();
+
+        FetchPurchasedTradeHistoryResDTO response = new FetchPurchasedTradeHistoryResDTO(tradePage.getPageable().getPageNumber(),
+                tradePage.hasNext(), tradePage.hasPrevious(), tradePage.getNumberOfElements(),
+                tradePage.hasContent(), content);
+
+        return Optional.of(response);
     }
 }

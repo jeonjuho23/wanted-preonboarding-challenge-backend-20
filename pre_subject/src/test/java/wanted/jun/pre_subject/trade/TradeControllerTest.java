@@ -4,6 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import wanted.jun.pre_subject.member.Member;
@@ -11,6 +14,11 @@ import wanted.jun.pre_subject.member.MemberRepository;
 import wanted.jun.pre_subject.member.ResponseDTO;
 import wanted.jun.pre_subject.product.Product;
 import wanted.jun.pre_subject.product.ProductRepository;
+import wanted.jun.pre_subject.product.SortBy;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,10 +49,11 @@ public class TradeControllerTest {
     public void reserveProduct() throws Exception {
         //given
         Long productId = product.getId();
-        Long buyerId = buyer.getId();
+        Map<String, Long> data = new HashMap<>();
+        data.put("buyerId", buyer.getId());
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, buyerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -54,9 +63,10 @@ public class TradeControllerTest {
     public void reserveProductNonMember() throws Exception {
         //given
         Long productId = product.getId();
+        Map<String, Long> data = new HashMap<>();
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, null);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -66,10 +76,11 @@ public class TradeControllerTest {
     public void reserveProductWithWrongMember() throws Exception {
         //given
         Long productId = product.getId();
-        Long buyerId = buyer.getId() + 10;
+        Map<String, Long> data = new HashMap<>();
+        data.put("buyerId", buyer.getId()+10);
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, buyerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -79,10 +90,11 @@ public class TradeControllerTest {
     public void reserveProductWithWrongProduct() throws Exception {
         //given
         Long productId = product.getId() + 10;
-        Long buyerId = buyer.getId();
+        Map<String, Long> data = new HashMap<>();
+        data.put("buyerId", buyer.getId());
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, buyerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -92,10 +104,11 @@ public class TradeControllerTest {
     public void reserveProductWithSeller() throws Exception {
         //given
         Long productId = product.getId();
-        Long buyerId = seller.getId();
+        Map<String, Long> data = new HashMap<>();
+        data.put("buyerId", seller.getId());
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, buyerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.reserveProduct(productId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -110,15 +123,16 @@ public class TradeControllerTest {
         Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
 
         Long tradeId = reservedTrade.getId();
-        Long sellerId = seller.getId();
+        Map<String, Long> data = new HashMap<>();
+        data.put("sellerId", seller.getId());
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, sellerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        ApproveTradeResDTO data = (ApproveTradeResDTO) response.getBody().data();
-        assertThat(data.tradeId()).isEqualTo(tradeId);
+        ApproveTradeResDTO dto = (ApproveTradeResDTO) response.getBody().data();
+        assertThat(dto.tradeId()).isEqualTo(tradeId);
     }
 
 
@@ -126,9 +140,10 @@ public class TradeControllerTest {
     public void approveTradeNonMember() throws Exception {
         //given
         Long productId = product.getId();
+        Map<String, Long> data = new HashMap<>();
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(productId, null);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(productId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -142,10 +157,11 @@ public class TradeControllerTest {
         Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
 
         Long tradeId = reservedTrade.getId();
-        Long sellerId = seller.getId() + 10;
+        Map<String, Long> data = new HashMap<>();
+        data.put("sellerId", seller.getId() + 10);
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, sellerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -159,10 +175,11 @@ public class TradeControllerTest {
         Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
 
         Long tradeId = reservedTrade.getId() + 10;
-        Long sellerId = seller.getId();
+        Map<String, Long> data = new HashMap<>();
+        data.put("sellerId", seller.getId());
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, sellerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -176,13 +193,102 @@ public class TradeControllerTest {
         Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
 
         Long tradeId = reservedTrade.getId();
+        Map<String, Long> data = new HashMap<>();
+        data.put("sellerId", buyer.getId());
 
         //when
-        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, buyerId);
+        ResponseEntity<ResponseDTO<?>> response = tradeController.approveTrade(tradeId, data);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+
+    @Test
+    public void fetchPurchasedTradeHistory() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+        // 승인
+        Long sellerId = seller.getId();
+        Long tradeId = reservedTrade.getId();
+        ApproveTradeReqDTO approveTradeReqDTO = new ApproveTradeReqDTO(tradeId, sellerId);
+        Trade approvedTrade = tradeService.approveTrade(approveTradeReqDTO);
+
+        Long memberId = buyer.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchPurchasedTradeHistory(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void fetchPurchasedTradeHistoryEmpty() throws Exception {
+        //given
+        Long memberId = buyer.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchPurchasedTradeHistory(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().data()).isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void fetchPurchasedTradeHistoryEmptyWithReservedProduct() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long memberId = buyer.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchPurchasedTradeHistory(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().data()).isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void fetchPurchasedTradeHistoryNonMember() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long memberId = null;
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchPurchasedTradeHistory(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody().data()).isEqualTo(Optional.empty());
+    }
 
 }
