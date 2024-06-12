@@ -15,4 +15,7 @@ public interface TradeRepository extends JpaRepository<Trade, Long> {
     Optional<Trade> findByProduct(Product product);
     @EntityGraph(attributePaths = {"product", "product.seller"})
     Page<Trade> findAllByBuyerAndProduct_ProductState(Member buyer, String productState, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"product", "buyer"})
+    Page<Trade> findAllByProduct_SellerAndProduct_ProductState(Member seller, String productState, Pageable pageable);
 }

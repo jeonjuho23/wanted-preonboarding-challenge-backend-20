@@ -107,4 +107,28 @@ public class TradeServiceImpl implements TradeService {
 
         return Optional.of(response);
     }
+
+    @Override
+    public Optional<FetchReservedTradeHistoryForSellingResDTO> fetchReservedTradeHistoryForSelling(FetchReservedTradeHistoryForSellingReqDTO request) {
+
+        if (request.memberId() == null) throw new IllegalArgumentException("회원이어야 거래 내역을 조회할 수 있습니다.");
+
+        Member seller = memberRepository.findById(request.memberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        Page<Trade> tradePage = tradeRepository.findAllByProduct_SellerAndProduct_ProductState(seller, State.RESERVED.value(), request.pageable());
+
+        if(tradePage.isEmpty()) return Optional.empty();
+
+        List<ReservedTradeHistoryForSellingDTO> content = tradePage.getContent().stream()
+                .map(trade -> new ReservedTradeHistoryForSellingDTO(trade.getProduct().getProductName(),
+                        trade.getProduct().getProductPrice(), trade.getBuyer().getUserId(),
+                        trade.getProduct().getStateUpdateTime(), trade.getId())).toList();
+
+        FetchReservedTradeHistoryForSellingResDTO response = new FetchReservedTradeHistoryForSellingResDTO(tradePage.getPageable().getPageNumber(),
+                tradePage.hasNext(), tradePage.hasPrevious(), tradePage.getNumberOfElements(),
+                tradePage.hasContent(), content);
+
+        return Optional.of(response);
+    }
 }

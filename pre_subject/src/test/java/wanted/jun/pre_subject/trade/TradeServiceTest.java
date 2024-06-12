@@ -17,6 +17,7 @@ import wanted.jun.pre_subject.product.SortBy;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -154,6 +155,12 @@ public class TradeServiceTest {
     @Test
     public void fetchReservedTradeHistoryForBuying() throws Exception {
         //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        ReserveTradeReqDTO reserveTradeReqDTO = new ReserveTradeReqDTO(productId, buyerId);
+        Trade reservedTrade = tradeService.reserveProduct(reserveTradeReqDTO);
+
         Long memberId = buyer.getId();
         int page = 0;
         int size = 10;
@@ -166,6 +173,32 @@ public class TradeServiceTest {
 
         //then
         assertThat(response.isPresent()).isEqualTo(true);
+        assertThat(response.get().content().get(0).tradeId()).isEqualTo(reservedTrade.getId());
+
+    }
+
+    @Test
+    public void fetchReservedTradeHistoryForSelling() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        ReserveTradeReqDTO reserveTradeReqDTO = new ReserveTradeReqDTO(productId, buyerId);
+        Trade reservedTrade = tradeService.reserveProduct(reserveTradeReqDTO);
+
+        Long memberId = seller.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+        FetchReservedTradeHistoryForSellingReqDTO request = new FetchReservedTradeHistoryForSellingReqDTO(memberId, pageable);
+
+        //when
+        Optional<FetchReservedTradeHistoryForSellingResDTO> response = tradeService.fetchReservedTradeHistoryForSelling(request);
+
+        //then
+        assertThat(response.isPresent()).isEqualTo(true);
+        assertThat(response.get().content().get(0).tradeId()).isEqualTo(reservedTrade.getId());
     }
 
 

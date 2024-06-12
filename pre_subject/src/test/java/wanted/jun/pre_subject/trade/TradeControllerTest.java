@@ -380,4 +380,92 @@ public class TradeControllerTest {
         assertThat(response.getBody().data()).isEqualTo(Optional.empty());
     }
 
+
+    @Test
+    public void fetchReservedTradeHistoryForSelling() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long memberId = seller.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchReservedTradeHistoryForSelling(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().data()).isNotEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void fetchReservedTradeHistoryForSellingEmpty() throws Exception {
+        //given
+        Long memberId = buyer.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchReservedTradeHistoryForSelling(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().data()).isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void fetchReservedTradeHistoryForSellingEmptyWithPurchasedProduct() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+        // 승인
+        Long sellerId = seller.getId();
+        Long tradeId = reservedTrade.getId();
+        ApproveTradeReqDTO approveTradeReqDTO = new ApproveTradeReqDTO(tradeId, sellerId);
+        Trade approvedTrade = tradeService.approveTrade(approveTradeReqDTO);
+
+        Long memberId = buyer.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchReservedTradeHistoryForSelling(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().data()).isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void fetchReservedTradeHistoryForSellingNonMember() throws Exception {
+        //given
+        // 예약
+        Long productId = product.getId();
+        Long buyerId = buyer.getId();
+        Trade reservedTrade = tradeService.reserveProduct(new ReserveTradeReqDTO(productId, buyerId));
+
+        Long memberId = null;
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        //when
+        ResponseEntity<ResponseDTO<?>> response = tradeController.fetchReservedTradeHistoryForSelling(memberId, pageable);
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody().data()).isEqualTo(Optional.empty());
+    }
 }
