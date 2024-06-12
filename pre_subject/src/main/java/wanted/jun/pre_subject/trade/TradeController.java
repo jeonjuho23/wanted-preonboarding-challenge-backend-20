@@ -60,7 +60,7 @@ public class TradeController {
         return ResponseEntity.ok().body(new ResponseDTO<>("제품 판매가 승인되었습니다.", response));
     }
 
-    @GetMapping("/complete/{memberId}")
+    @GetMapping("/purchased/{memberId}")
     public ResponseEntity<ResponseDTO<?>> fetchPurchasedTradeHistory
             (@PathVariable("memberId") Long memberId,
              @PageableDefault(size = 10, page = 0, sort = "product.stateUpdateTime") Pageable pageable) {
@@ -69,11 +69,26 @@ public class TradeController {
         Optional<FetchPurchasedTradeHistoryResDTO> response;
         try {
             response = tradeService.fetchPurchasedTradeHistory(request);
-
         } catch (IllegalArgumentException ie) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(ie.getMessage(), Optional.empty()));
         }
 
         return ResponseEntity.ok().body(new ResponseDTO<>("구매한 제품 목록을 조회했습니다.", response));
+    }
+
+    @GetMapping("/reserved/{memberId}")
+    public ResponseEntity<ResponseDTO<?>> fetchReservedTradeHistoryForBuying
+            (@PathVariable("memberId") Long memberId,
+             @PageableDefault(size = 10, page = 0, sort = "product.stateUpdateTime") Pageable pageable) {
+
+        FetchReservedTradeHistoryForBuyingReqDTO request = new FetchReservedTradeHistoryForBuyingReqDTO(memberId, pageable);
+        Optional<FetchReservedTradeHistoryForBuyingResDTO> response;
+        try {
+            response = tradeService.fetchReservedTradeHistoryForBuying(request);
+        } catch (IllegalArgumentException ie) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(ie.getMessage(), Optional.empty()));
+        }
+
+        return ResponseEntity.ok().body(new ResponseDTO<>("예약한 제품 목록을 조회했습니다.", response));
     }
 }

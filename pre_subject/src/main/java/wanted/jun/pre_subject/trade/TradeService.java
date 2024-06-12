@@ -8,4 +8,6 @@ public interface TradeService {
     Trade approveTrade(ApproveTradeReqDTO request);
 
     Optional<FetchPurchasedTradeHistoryResDTO> fetchPurchasedTradeHistory(FetchPurchasedTradeHistoryReqDTO request);
+
+    Optional<FetchReservedTradeHistoryForBuyingResDTO> fetchReservedTradeHistoryForBuying(FetchReservedTradeHistoryForBuyingReqDTO request);
 }

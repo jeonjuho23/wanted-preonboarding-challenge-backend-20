@@ -17,7 +17,6 @@ import wanted.jun.pre_subject.product.SortBy;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -152,6 +151,22 @@ public class TradeServiceTest {
     }
 
 
+    @Test
+    public void fetchReservedTradeHistoryForBuying() throws Exception {
+        //given
+        Long memberId = buyer.getId();
+        int page = 0;
+        int size = 10;
+        Sort sort = Sort.by(SortBy.PRODUCT_STATE_UPDATE_TIME.value());
+        Pageable pageable = PageRequest.of(page, size, sort);
+        FetchReservedTradeHistoryForBuyingReqDTO request = new FetchReservedTradeHistoryForBuyingReqDTO(memberId, pageable);
+
+        //when
+        Optional<FetchReservedTradeHistoryForBuyingResDTO> response = tradeService.fetchReservedTradeHistoryForBuying(request);
+
+        //then
+        assertThat(response.isPresent()).isEqualTo(true);
+    }
 
 
 }
